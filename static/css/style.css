@@ -1,0 +1,29 @@
+/* static/css/style.css */
+
+body {
+    padding-top: 56px; /* Adjust if navbar height changes */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1; /* Make main content area grow */
+}
+
+footer {
+    flex-shrink: 0; /* Prevent footer from shrinking */
+    margin-top: auto; /* Push footer to bottom */
+}
+
+.card-img-top {
+    width: 100%;
+    /* Ensure aspect ratio is maintained, adjust height as needed */
+    /* height: 200px; */
+    /* object-fit: cover; */
+}
+
+/* Style chat messages */
+.chat-messages .text-end .d-inline-block {
+    margin-left: auto; /* Align right messages */
+}

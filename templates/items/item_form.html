@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ view_title|default:"Manage Item" }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2>{{ view_title|default:"Manage Item" }}</h2>
+        {# IMPORTANT: enctype for file uploads #}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary mt-3">Save Item</button>
+             {# Use object.get_absolute_url if editing (object exists), otherwise link to my_posts for create cancel #}
+<a href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'my_posts' %}{% endif %}" class="btn btn-secondary mt-3">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

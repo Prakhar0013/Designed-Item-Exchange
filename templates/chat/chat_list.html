@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}My Chats{% endblock %}
+
+{% block content %}
+<h2>My Conversations</h2>
+
+{# Check if the structured list has data #}
+{% if chat_list_data %}
+<div class="list-group">
+    {# Loop over the list of dictionaries prepared in the view #}
+    {% for data in chat_list_data %}
+        {# Check if other_user was found (might be None if logic error somewhere, but shouldn't be) #}
+        {% if data.other_user %}
+            <a href="{% url 'chat_room' data.room.id %}" class="list-group-item list-group-item-action flex-column align-items-start mb-2">
+                <div class="d-flex w-100 justify-content-between">
+                    {# Access room details via data.room #}
+                    <h5 class="mb-1">Chat about: {{ data.room.item.name }}</h5>
+                    {# Access other_user directly from data.other_user #}
+                    <small>With: {{ data.other_user.username }}</small>
+                </div>
+                {# Placeholder for last message preview using data.last_message if added #}
+                {# <p class="mb-1">...</p> #}
+                <small class="text-muted">Started: {{ data.room.created_at|date:"d M Y" }}</small>
+            </a>
+        {% endif %}
+    {% empty %}
+        {# This empty block is for the for loop, handles if chat_list_data is empty after processing #}
+        <p>You have no active conversations yet.</p>
+        <p>Find an item on the <a href="{% url 'home' %}">Home page</a> and click 'Chat with Seller' to start.</p>
+    {% endfor %}
+</div>
+{% else %}
+    {# This handles the case where the initial queryset was empty #}
+    <p>You have no active conversations yet.</p>
+    <p>Find an item on the <a href="{% url 'home' %}">Home page</a> and click 'Chat with Seller' to start.</p>
+{% endif %}
+
+{% endblock %}

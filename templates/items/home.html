@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home - NIFT Exchange{% endblock %}
+
+{% block content %}
+<h1>Welcome to NIFT Item Exchange</h1>
+<p>Browse items shared by fellow students.</p>
+
+<!-- Filter/Search Form -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <form method="get" action="{% url 'home' %}" class="d-flex">
+            <input class="form-control me-2" type="search" placeholder="Search items..." aria-label="Search" name="q" value="{{ search_query|default:'' }}">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+    </div>
+    <div class="col-md-4">
+         <form method="get" action="{% url 'home' %}" id="category-filter-form">
+            <input type="hidden" name="q" value="{{ search_query|default:'' }}"> <!-- Preserve search query -->
+            <select name="category" class="form-select" onchange="document.getElementById('category-filter-form').submit()">
+                <option value="" {% if not selected_category %}selected{% endif %}>All Categories</option>
+                {% for cat in all_categories %}
+                    <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>
+                        {{ cat.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</div>
+
+
+<!-- Item Listing -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for item in items %}
+    <div class="col">
+        <div class="card h-100">
+            {% if item.image %}
+            <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+            <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="Placeholder" style="height: 200px; object-fit: cover;"> <!-- Add a placeholder image -->
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ item.name }}</h5>
+                 <h6 class="card-subtitle mb-2 text-muted">
+                    {% if item.category %} {{ item.category.name }} {% else %} Uncategorized {% endif %}
+                 </h6>
+                <p class="card-text flex-grow-1">{{ item.description|truncatewords:20 }}</p>
+                <p class="card-text"><strong>Price:</strong>
+                    {% if item.expected_price > 0 %}
+                        ₹{{ item.expected_price|floatformat:2 }}
+                    {% else %}
+                        Free/Swap
+                    {% endif %}
+                </p>
+                 <p class="card-text"><small class="text-muted">Posted by: {{ item.owner.username }} on {{ item.created_at|date:"d M Y" }}</small></p>
+                 <a href="{{ item.get_absolute_url }}" class="btn btn-primary mt-auto">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+        <div class="col-12">
+            <p class="text-center">No items found matching your criteria.</p>
+             {% if not search_query and not selected_category %}
+                <p class="text-center">Be the first to <a href="{% url 'item_create' %}">post an item</a>!</p>
+             {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">« Previous</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled"><span class="page-link">« Previous</span></li>
+        {% endif %}
+
+        {% for i in paginator.page_range %}
+            {% if page_obj.number == i %}
+                <li class="page-item active" aria-current="page"><span class="page-link">{{ i }}</span></li>
+            {% else %}
+                 <li class="page-item"><a class="page-link" href="?page={{ i }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">{{ i }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">Next »</a>
+            </li>
+        {% else %}
+             <li class="page-item disabled"><span class="page-link">Next »</span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

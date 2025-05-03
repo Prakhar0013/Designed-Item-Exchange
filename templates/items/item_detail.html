@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ item.name }} - NIFT Exchange{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-7">
+        {% if item.image %}
+            <img src="{{ item.image.url }}" class="img-fluid rounded" alt="{{ item.name }}">
+        {% else %}
+             <img src="{% static 'images/placeholder.png' %}" class="img-fluid rounded" alt="Placeholder">
+        {% endif %}
+    </div>
+    <div class="col-md-5">
+        <h2>{{ item.name }}</h2>
+        <h4 class="text-muted">
+             {% if item.category %} {{ item.category.name }} {% else %} Uncategorized {% endif %}
+        </h4>
+        <h3 class="my-3">
+            Price:
+            {% if item.expected_price > 0 %}
+                ₹{{ item.expected_price|floatformat:2 }}
+            {% else %}
+                Free/Swap
+            {% endif %}
+        </h3>
+        <p><strong>Description:</strong></p>
+        <p>{{ item.description|linebreaksbr }}</p> {# linebreaksbr converts newlines to <br> #}
+        <hr>
+        <p><strong>Owner:</strong> {{ item.owner.username }}</p>
+        <p><small class="text-muted">Posted on: {{ item.created_at|date:"F d, Y" }}</small></p>
+         <p><small class="text-muted">Last updated: {{ item.updated_at|timesince }} ago</small></p>
+
+        {% if user.is_authenticated %}
+            {% if is_owner %}
+                <a href="{% url 'item_edit' item.pk %}" class="btn btn-secondary">Edit Item</a>
+                <a href="{% url 'item_delete' item.pk %}" class="btn btn-danger">Delete Item</a>
+            {% else %}
+                 {# Link to start chat #}
+                 <a href="{% url 'start_chat' item.pk %}" class="btn btn-success">Chat with Seller</a>
+            {% endif %}
+        {% else %}
+            <p><a href="{% url 'login' %}?next={{ request.path }}">Login</a> to contact the seller.</p>
+        {% endif %}
+
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary mt-3">Back to Listings</a>
+
+    </div>
+</div>
+{% endblock %}

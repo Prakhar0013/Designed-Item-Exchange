@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Chat about {{ item.name }}{% endblock %}
+
+{% block content %}
+<h2>Chat about: <a href="{{ item.get_absolute_url }}">{{ item.name }}</a></h2>
+<p>Conversation with: <strong>{{ other_user.username }}</strong></p>
+<hr>
+
+<div class="chat-messages mb-3" style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+    {% for message in messages %}
+        <div class="mb-2 {% if message.sender == user %}text-end{% else %}text-start{% endif %}">
+            <div class="d-inline-block p-2 rounded {% if message.sender == user %}bg-primary text-white{% else %}bg-light border{% endif %}" style="max-width: 75%;">
+                <small class="fw-bold">{{ message.sender.username }}</small><br>
+                {{ message.content|linebreaksbr }}
+                <div class="text-muted" style="font-size: 0.75em;">{{ message.timestamp|timesince }} ago</div>
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-center text-muted">No messages yet. Start the conversation!</p>
+    {% endfor %}
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="input-group">
+        {{ form.content|as_crispy_field }} {# Render only the content field #}
+        <button type="submit" class="btn btn-success">Send</button>
+    </div>
+</form>
+
+<a href="{% url 'chat_list' %}" class="btn btn-outline-secondary mt-3">Back to Chats</a>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-scroll to the bottom of the chat messages
+    const chatMessages = document.querySelector('.chat-messages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+</script>
+{% endblock %}
